@@ -11,11 +11,6 @@
         <module>illness-impl</module>-->
         <module>voting-api</module>
         <module>voting-impl</module>
-        <module>hello-api</module>
-        <module>hello-impl</module>
-        <module>stream-api</module>
-        <module>stream-impl</module>
-        <module>integration-tests</module>
         <module>cassandra-config</module>
     </modules>
 
