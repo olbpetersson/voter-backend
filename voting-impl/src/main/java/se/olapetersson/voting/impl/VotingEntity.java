@@ -29,16 +29,16 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteRegisteredEv
         BehaviorBuilder behaviorBuilder = newBehaviorBuilder(
                 snapshotState.orElse(50)
         );
-
         behaviorBuilder.setCommandHandler(RegisterVoteCommand.class,
             (cmd, ctx) -> {
+
                 Assert.isTrue(cmd.getVoteValue() > Integer.MIN_VALUE);
                 Assert.isTrue(cmd.getEpochUuid() > Integer.MIN_VALUE);
 
                 Persist persistenceResult;
                 Logger.info("Got a registerVoteCommand with value {}", cmd.getVoteValue());
                 if(cmd.getVoteValue() != -1 && cmd.getVoteValue() != 1){
-                    ctx.invalidCommand("The vote was tampered with! Value was: " + cmd.getVoteValue() +"|");
+                    ctx.invalidCommand("The voteStream was tampered with! Value was: " + cmd.getVoteValue() +"|");
                     pubSubRef.publish("BANNED!");
                     persistenceResult = ctx.done();
                 } else{
@@ -62,6 +62,7 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteRegisteredEv
                 ctx.reply(state());
             }
         );
+
 
         behaviorBuilder.setEventHandler(VoteRegisteredEvent.class, evt ->{
             Logger.info("Applying VoteRegisteredEvent with value {} and user {}", evt.getVoteValue(), evt.getUserEpochId());

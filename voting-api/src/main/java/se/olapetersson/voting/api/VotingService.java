@@ -9,8 +9,6 @@ import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 
-import java.util.List;
-
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.namedCall;
 
@@ -22,20 +20,15 @@ import static com.lightbend.lagom.javadsl.api.Service.namedCall;
  */
 public interface VotingService extends Service {
 
-    ServiceCall<Source<JSONMessage, ?>, Source<Integer, NotUsed>> vote();
-    ServiceCall<NotUsed, String> restVote();
-    ServiceCall<NotUsed, String> getVoteStandings();
+    ServiceCall<Source<JSONMessage, ?>, Source<Integer, NotUsed>> voteStream();
     ServiceCall<NotUsed, String> fail();
-    ServiceCall<JSONMessage, String> jsonPay();
     ServiceCall<NotUsed, String> readSide();
+
     @Override
     default Descriptor descriptor() {
         return named("voting").withCalls(
-                Service.namedCall("voting", this::vote),
-                Service.namedCall("vote", this::restVote),
+                Service.namedCall("voting", this::voteStream),
                 Service.namedCall("fail", this::fail),
-                Service.namedCall("voting", this::getVoteStandings),
-                Service.namedCall("json", this::jsonPay),
                 Service.namedCall("read", this::readSide)
         ).withAutoAcl(true);
     }

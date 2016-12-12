@@ -5,7 +5,6 @@ package se.olapetersson.voting.impl;
 
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
-import se.olapetersson.hello.api.HelloService;
 import se.olapetersson.voting.api.VotingService;
 
 /**
@@ -17,6 +16,6 @@ public class VotingModule extends AbstractModule implements ServiceGuiceSupport 
     // Bind the StreamService service
     bindServices(serviceBinding(VotingService.class, VotingServiceImpl.class));
     // Bind the HelloService client
-    bindClient(HelloService.class);
+//    bindClient(HelloService.class);
   }
 }

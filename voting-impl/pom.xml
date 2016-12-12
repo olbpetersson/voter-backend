@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>se.olapetersson</groupId>
-        <artifactId>lagom-test-1.2</artifactId>
+        <artifactId>voter-backend</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -20,11 +20,6 @@
             <groupId>com.lightbend.lagom</groupId>
             <artifactId>lagom-javadsl-cluster_2.11</artifactId>
             <version>${lagom.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>hello-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
@@ -59,7 +54,6 @@
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
             <artifactId>lagom-javadsl-persistence-cassandra_2.11</artifactId>
-            <version>1.2.0-RC2</version>
         </dependency>
     </dependencies>
 

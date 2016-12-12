@@ -29,7 +29,6 @@ public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
         this.readSide = readSide;
     }
 
-
     @Override
     public ReadSideHandler<VoteRegisteredEvent> buildHandler() {
         return readSide.<VoteRegisteredEvent>builder("vote_offset")
@@ -59,9 +58,8 @@ public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
                });
     }
 
-
     private CompletionStage<Done> prepareCreateTable() {
-        Logger.info("Creating vote table");
+        Logger.info("Creating voteStream table");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS participants("
                 + "user bigint,"
