@@ -14,7 +14,7 @@ public class VoteRegisteredEvent implements VoteCommand, Serializable, Aggregate
     private UUID uuid;
     private long userEpochId;
 
-    private static int NUM_SHARDS =1 ;
+    private static int NUM_SHARDS = 1 ;
     public static final AggregateEventShards<VoteRegisteredEvent> TAG_INSTANCE =
             AggregateEventTag.sharded(VoteRegisteredEvent.class, NUM_SHARDS);
 

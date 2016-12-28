@@ -16,7 +16,6 @@ import com.lightbend.lagom.javadsl.pubsub.PubSubRef;
 import com.lightbend.lagom.javadsl.pubsub.PubSubRegistry;
 import com.lightbend.lagom.javadsl.pubsub.TopicId;
 import org.springframework.util.Assert;
-import play.Logger;
 import play.libs.Json;
 import se.olapetersson.voting.api.JSONMessage;
 import se.olapetersson.voting.api.VotingService;
@@ -24,9 +23,6 @@ import se.olapetersson.voting.impl.commands.FailCommand;
 import se.olapetersson.voting.impl.commands.RegisterVoteCommand;
 import se.olapetersson.voting.impl.commands.VoteCommand;
 import se.olapetersson.voting.impl.commands.VoteStandingsCommand;
-
-import java.time.LocalDate;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 

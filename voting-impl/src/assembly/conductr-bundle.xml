@@ -9,7 +9,7 @@
 
     <dependencySets>
         <dependencySet>
-            <outputDirectory>voting/lib</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
             <outputFileNameMapping>${artifact.groupId}-${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
@@ -18,13 +18,13 @@
         <fileSet>
             <outputDirectory></outputDirectory>
             <directory>src/bundle</directory>
-            <excludes>
+            <!--<excludes>
                 <exclude>voting/bin/**</exclude>
-            </excludes>
+            </excludes>-->
         </fileSet>
         <fileSet>
             <outputDirectory>voting/bin</outputDirectory>
-            <directory>src/bundle/voting/bin</directory>
+            <directory>src/bundle/bin</directory>
             <fileMode>0755</fileMode>
         </fileSet>
     </fileSets>

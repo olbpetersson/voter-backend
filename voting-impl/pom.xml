@@ -16,11 +16,11 @@
             <artifactId>voting-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.lightbend.lagom</groupId>
-            <artifactId>lagom-javadsl-cluster_2.11</artifactId>
-            <version>${lagom.version}</version>
-        </dependency>
+    <!--<dependency>
+        <groupId>com.lightbend.lagom</groupId>
+        <artifactId>lagom-javadsl-cluster_2.11</artifactId>
+        <version>${lagom.version}</version>
+    </dependency>-->
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
             <artifactId>lagom-javadsl-server_2.11</artifactId>
@@ -82,13 +82,13 @@
                 <configuration>
                     <lagomService>true</lagomService>
                 </configuration>
-                <executions>
+                <!--<executions>
                     <execution>
                         <goals>
                             <goal>renameConductRBundle</goal>
                         </goals>
                     </execution>
-                </executions>
+                </executions>-->
             </plugin>
         </plugins>
     </build>

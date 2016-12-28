@@ -23,6 +23,7 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteRegisteredEv
         this.pubSubRef = pubSubRegistry.refFor(TopicId.of(Integer.class, "myId"));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Behavior initialBehavior(Optional<Integer> snapshotState) {
 
@@ -58,19 +59,18 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteRegisteredEv
         );
 
         behaviorBuilder.setReadOnlyCommandHandler(VoteStandingsCommand.class, (cmd, ctx) ->{
-                pubSubRef.publish(state());
-                ctx.reply(state());
-            }
+            pubSubRef.publish(state());
+                    ctx.reply(state());
+                }
         );
 
-
         behaviorBuilder.setEventHandler(VoteRegisteredEvent.class, evt ->{
-            Logger.info("Applying VoteRegisteredEvent with value {} and user {}", evt.getVoteValue(), evt.getUserEpochId());
-            Logger.info("State will be updated to: {}", state() + evt.getVoteValue());
-            final Integer newState = state() + evt.getVoteValue();
-            pubSubRef.publish(newState);
-            return newState;
-        }
+                Logger.info("Applying VoteRegisteredEvent with value {} and user {}", evt.getVoteValue(), evt.getUserEpochId());
+                Logger.info("State will be updated to: {}", state() + evt.getVoteValue());
+                final Integer newState = state() + evt.getVoteValue();
+                pubSubRef.publish(newState);
+                return newState;
+            }
         );
 
         return behaviorBuilder.build();
