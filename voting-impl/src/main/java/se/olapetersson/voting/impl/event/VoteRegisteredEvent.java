@@ -1,15 +1,13 @@
-package se.olapetersson.voting.impl;
+package se.olapetersson.voting.impl.event;
 
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventShards;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
-import se.olapetersson.voting.impl.commands.VoteCommand;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public class VoteRegisteredEvent implements VoteCommand, Serializable, AggregateEvent<VoteRegisteredEvent> {
+public class VoteRegisteredEvent implements VoteEvent, AggregateEvent<VoteRegisteredEvent> {
     private int voteValue;
     private UUID uuid;
     private long userEpochId;

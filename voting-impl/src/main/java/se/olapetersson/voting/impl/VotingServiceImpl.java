@@ -4,6 +4,7 @@
 package se.olapetersson.voting.impl;
 
 import akka.NotUsed;
+import akka.actor.ActorRef;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Source;
 import com.google.inject.Inject;
@@ -16,6 +17,7 @@ import com.lightbend.lagom.javadsl.pubsub.PubSubRef;
 import com.lightbend.lagom.javadsl.pubsub.PubSubRegistry;
 import com.lightbend.lagom.javadsl.pubsub.TopicId;
 import org.springframework.util.Assert;
+import play.Logger;
 import play.libs.Json;
 import se.olapetersson.voting.api.JSONMessage;
 import se.olapetersson.voting.api.VotingService;
@@ -23,6 +25,8 @@ import se.olapetersson.voting.impl.commands.FailCommand;
 import se.olapetersson.voting.impl.commands.RegisterVoteCommand;
 import se.olapetersson.voting.impl.commands.VoteCommand;
 import se.olapetersson.voting.impl.commands.VoteStandingsCommand;
+
+import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -32,6 +36,7 @@ public class VotingServiceImpl implements VotingService {
     private final PubSubRef<Integer> pubSubRef;
     private final CassandraSession cassandraSession;
     private Materializer materializer;
+    private final PersistentEntityRegistry persistentEntityRegistry;
 
     @Inject
     public VotingServiceImpl(PersistentEntityRegistry persistentEntities, PubSubRegistry pubSubRegistry,
@@ -40,8 +45,10 @@ public class VotingServiceImpl implements VotingService {
         this.materializer = materializer;
         this.cassandraSession = cassandraSession;
 
-        persistentEntities.register(VotingEntity.class);
+        this.persistentEntityRegistry = persistentEntities;
+        this.persistentEntityRegistry.register(VotingEntity.class);
         readSide.register(VoteEventProcessor.class);
+
         this.ref = persistentEntities.refFor(VotingEntity.class, "myId");
         this.pubSubRef = pubSubRegistry.refFor(TopicId.of(Integer.class, "myId"));
     }
@@ -79,6 +86,23 @@ public class VotingServiceImpl implements VotingService {
         return req -> cassandraSession.selectOne("SELECT Count(*) FROM participants")
                       .thenApply(row ->
                         row.isPresent() ? "" + row.get().getLong("count") : "No participants");
+    }
 
+    @Override
+    public ServiceCall<NotUsed, String> dynamicPath(String id) {
+        return req -> {
+            Logger.info("this is dynamicPath: {}", id);
+            PersistentEntityRef ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
+            return ref.ask(new VoteStandingsCommand()).thenApply(resp -> resp + " was retorno");
+        };
+    }
+
+    @Override
+    public ServiceCall<Source<JSONMessage, ?>, Source<Integer, NotUsed>> dynamicStream(String id) {
+        return inputStream -> {
+            PersistentEntityRef ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
+            inputStream.runForeach(input -> ref.ask(getCommand(input)), materializer);
+            return completedFuture(pubSubRef.subscriber());
+        };
     }
 }

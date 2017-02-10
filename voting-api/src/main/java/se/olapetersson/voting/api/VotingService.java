@@ -8,6 +8,7 @@ import akka.stream.javadsl.Source;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import scala.util.parsing.json.JSON;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 import static com.lightbend.lagom.javadsl.api.Service.namedCall;
@@ -23,13 +24,18 @@ public interface VotingService extends Service {
     ServiceCall<Source<JSONMessage, ?>, Source<Integer, NotUsed>> voteStream();
     ServiceCall<NotUsed, String> fail();
     ServiceCall<NotUsed, String> readSide();
+    ServiceCall<NotUsed, String> dynamicPath(String id);
+    ServiceCall<Source<JSONMessage, ?>, Source<Integer, NotUsed>> dynamicStream(String id);
 
     @Override
     default Descriptor descriptor() {
         return named("voting").withCalls(
                 Service.namedCall("voting", this::voteStream),
                 Service.namedCall("fail", this::fail),
-                Service.namedCall("read", this::readSide)
+                Service.namedCall("read", this::readSide),
+                Service.pathCall("/read/:id", this::dynamicPath),
+                Service.pathCall("/read/:id", this::dynamicStream)
+
         ).withAutoAcl(true);
     }
 }

@@ -5,7 +5,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>voting-v1</baseDirectory>
+    <baseDirectory>${project.build.directory}/bundle</baseDirectory>
 
     <dependencySets>
         <dependencySet>

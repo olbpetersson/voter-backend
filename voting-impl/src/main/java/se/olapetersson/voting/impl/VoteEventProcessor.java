@@ -11,6 +11,7 @@ import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import org.pcollections.PSequence;
 import play.Logger;
+import se.olapetersson.voting.impl.event.VoteRegisteredEvent;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
