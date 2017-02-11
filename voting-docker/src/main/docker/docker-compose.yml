@@ -1,0 +1,12 @@
+version: '3'
+services:
+  app:
+    image: gotoola/lagom-voter
+    tty: true
+    ports:
+      - 8080:8080
+  cassandra:
+    image: gotoola/cassandra-lagom
+    tty: true
+    ports:
+      - 9042:9042

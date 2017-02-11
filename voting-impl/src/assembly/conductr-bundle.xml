@@ -5,7 +5,7 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>${project.build.directory}/bundle</baseDirectory>
+    <baseDirectory>${project.buildDirectory}/bundle</baseDirectory>
 
     <dependencySets>
         <dependencySet>
@@ -16,7 +16,7 @@
 
     <fileSets>
         <fileSet>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>${project.buildDirectory}/bundle</outputDirectory>
             <directory>src/bundle</directory>
             <!--<excludes>
                 <exclude>voting/bin/**</exclude>

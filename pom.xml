@@ -8,8 +8,9 @@
 
     <modules>
         <module>voting-api</module>
-        <module>voting-impl</module> 
-        <module>cassandra-config</module>
+        <module>voting-impl</module>
+        <module>voting-docker</module>
+        <!--<module>cassandra-config</module>-->
     </modules>
 
     <build>
@@ -18,11 +19,13 @@
                 <groupId>com.lightbend.lagom</groupId>
                 <artifactId>lagom-maven-plugin</artifactId>
                 <version>${lagom.version}</version>
-                <configuration>
-                    <cassandraPort>9042</cassandraPort>
-                    <serviceLocatorEnabled>false</serviceLocatorEnabled>
-                    <cassandraEnabled>false</cassandraEnabled>
-                </configuration>
+                <!--
+                                <configuration>
+                                    <cassandraPort>9042</cassandraPort>
+                                    <serviceLocatorEnabled>false</serviceLocatorEnabled>
+                                    <cassandraEnabled>false</cassandraEnabled>
+                                </configuration>
+                -->
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -40,6 +43,11 @@
                         <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.19.1</version>
             </plugin>
         </plugins>
     </build>

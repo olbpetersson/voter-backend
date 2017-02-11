@@ -75,21 +75,21 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
+	    </plugin> 
+	    <plugin>
                 <groupId>com.lightbend.lagom</groupId>
                 <artifactId>lagom-maven-plugin</artifactId>
-                <configuration>
+        <!--        <configuration>
                     <lagomService>true</lagomService>
                 </configuration>
-                <!--<executions>
+                  <executions>
                     <execution>
                         <goals>
                             <goal>renameConductRBundle</goal>
                         </goals>
                     </execution>
-                </executions>-->
-            </plugin>
+                </executions> -->
+	    </plugin> 
         </plugins>
     </build>
 </project>

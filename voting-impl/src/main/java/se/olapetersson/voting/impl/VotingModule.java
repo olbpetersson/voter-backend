@@ -30,8 +30,6 @@ public class VotingModule extends AbstractModule implements ServiceGuiceSupport 
     protected void configure() {
         // Bind the StreamService service
         bindServices(serviceBinding(VotingService.class, VotingServiceImpl.class));
-//        bind(ServiceLocator.class).to(ConfigurationServiceLocator.class);
-        // Bind the HelloService client
-//    bindClient(HelloService.class);
+        bind(ServiceLocator.class).to(ConfigurationServiceLocator.class);
     }
 }
