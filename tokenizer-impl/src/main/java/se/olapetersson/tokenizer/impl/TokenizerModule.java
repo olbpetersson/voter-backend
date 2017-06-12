@@ -1,24 +1,23 @@
 /*
  * Copyright (C) 2016 Lightbend Inc. <http://www.lightbend.com>
  */
-package se.olapetersson.voting.impl;
+package se.olapetersson.tokenizer.impl;
 
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 import se.olapetersson.voting.api.TokenizerService;
-import se.olapetersson.voting.api.VotingService;
 
 /**
  * The module that binds the StreamService so that it can be served.
  */
-public class VotingModule extends AbstractModule implements ServiceGuiceSupport {
+public class TokenizerModule extends AbstractModule implements ServiceGuiceSupport {
 
     /*private Environment environment;
     private Configuration configuration;
     private ConsulConfiguration consulConfiguration;
 
     @Inject
-    public VotingModule(Environment environment, Configuration configuration) throws UnknownHostException {
+    public TokenizerModule(Environment environment, Configuration configuration) throws UnknownHostException {
         this.environment = environment;
         this.configuration = configuration;
         *//*this.consulConfiguration = new ConsulConfiguration(configuration);
@@ -36,7 +35,6 @@ public class VotingModule extends AbstractModule implements ServiceGuiceSupport 
 
     @Override
     protected void configure() {
-        bindServices(serviceBinding(VotingService.class, VotingServiceImpl.class));
-        bindClient(TokenizerService.class);
+        bindServices(serviceBinding(TokenizerService.class, TokenizerServiceImpl.class));
     }
 }

@@ -1,4 +1,4 @@
-package se.olapetersson.voting.impl.commands;
+package se.olapetersson.voting.impl.command;
 
 public class VoteStandingsCommand implements VoteCommand {
 }

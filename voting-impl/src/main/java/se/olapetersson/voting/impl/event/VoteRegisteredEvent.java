@@ -8,34 +8,25 @@ import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
 import java.util.UUID;
 
 public class VoteRegisteredEvent implements VoteEvent, AggregateEvent<VoteRegisteredEvent> {
-    private int voteValue;
-    private UUID uuid;
+    private String voteName;
+    //Eventually used for a user connection later
     private long userEpochId;
 
     private static int NUM_SHARDS = 1 ;
     public static final AggregateEventShards<VoteRegisteredEvent> TAG_INSTANCE =
             AggregateEventTag.sharded(VoteRegisteredEvent.class, NUM_SHARDS);
 
-    public VoteRegisteredEvent(){
-        this.uuid = UUID.randomUUID();
-        this.voteValue = 0;
-    }
-    public VoteRegisteredEvent(int voteValue, long userEpochId) {
-        this();
-        this.voteValue = voteValue;
+    public VoteRegisteredEvent(String voteName, long userEpochId) {
+        this.voteName = voteName;
         this.userEpochId = userEpochId;
     }
 
-    public int getVoteValue() {
-        return voteValue;
+    public String getVoteName() {
+        return voteName;
     }
 
     public long getUserEpochId() {
         return userEpochId;
-    }
-
-    public UUID getUuid() {
-        return this.uuid;
     }
 
     @Override

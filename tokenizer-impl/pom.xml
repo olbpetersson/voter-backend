@@ -6,15 +6,15 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>voting-impl</artifactId>
+    <artifactId>tokenizer-impl</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>voting-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -26,11 +26,11 @@
             <artifactId>consul-client</artifactId>
             <version>0.0.1-ALPHA</version>
         </dependency>
-    <!--<dependency>
-        <groupId>com.lightbend.lagom</groupId>
-        <artifactId>lagom-javadsl-cluster_2.11</artifactId>
-        <version>${lagom.version}</version>
-    </dependency>-->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-oauth2</artifactId>
+            <version>v2-rev127-1.22.0</version>
+        </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
             <artifactId>lagom-javadsl-server_2.11</artifactId>
@@ -85,21 +85,21 @@
                         </goals>
                     </execution>
                 </executions>
-	    </plugin> 
-	    <plugin>
+            </plugin>
+            <plugin>
                 <groupId>com.lightbend.lagom</groupId>
                 <artifactId>lagom-maven-plugin</artifactId>
                 <configuration>
                     <lagomService>true</lagomService>
                 </configuration>
-            <!--          <executions>
-                        <execution>
-                            <goals>
-                                <goal>renameConductRBundle</goal>
-                            </goals>
-                        </execution>
-                    </executions> -->
-	    </plugin> 
+                <!--          <executions>
+                            <execution>
+                                <goals>
+                                    <goal>renameConductRBundle</goal>
+                                </goals>
+                            </execution>
+                        </executions> -->
+            </plugin>
         </plugins>
     </build>
 </project>
