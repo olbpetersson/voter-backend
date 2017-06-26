@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, VotingState> {
 
     @Inject
-    TokenizerService tokenService;
+    private TokenizerService tokenService;
 
     private final PubSubRegistry pubSubRegistry;
     private PubSubRef pubSubRef;
@@ -45,14 +45,14 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
     @SuppressWarnings("unchecked")
     @Override
     public Behavior initialBehavior(Optional<VotingState> snapshotState) {
-        Logger.info("setting the initial behavior wohoo");
+        Logger.info("setting the initial behavior wohoo, entityId {}", entityId());
         pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, entityId()));
 
         return initBehavior(snapshotState).build();
     }
 
     private BehaviorBuilder initBehavior(Optional<VotingState> snapshotState) {
-        Logger.info("Creating a voting...");
+        Logger.info("Creating a voting..., entityId {}", entityId());
         BehaviorBuilder behaviorBuilder = newBehaviorBuilder(snapshotState.orElse(null));
         behaviorBuilder.setCommandHandler(NewVotingCommand.class, (cmd, ctx) -> {
             Logger.info("monkey");
@@ -60,7 +60,7 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
             try {
                 return firstFuture.thenApply(userName -> {
                     Assert.hasText(userName, "Attempted to created a game with an invalid token");
-                    return ctx.thenPersist(new NewVotingEvent(cmd.getVotingName(), cmd.getVotingOptionA(),
+                    return ctx.thenPersist(new NewVotingEvent(cmd.getVotingName(), cmd.getDescription(), cmd.getVotingOptionA(),
                                     cmd.getVotingOptionB(), userName), evt -> {
                                 Logger.info("starting a voting... {} ", snapshotState.orElse(null));
                                 pubSubRef.publish(state());
@@ -74,9 +74,14 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
             }
         });
 
+        behaviorBuilder.setCommandHandler(NewVotingCommand.class, (cmd, ctx) -> {
+                throw new IllegalArgumentException("Game already created!");
+          }
+        );
+
         behaviorBuilder.setEventHandlerChangingBehavior(NewVotingEvent.class, evt ->
                 openedBehavior(Optional.of(
-                        VotingState.createVotingState(evt.getVotingName(), VotingOption.create(evt.getVotingOptionA()),
+                        VotingState.createVotingState(evt.getVotingName(), evt.getDescription(), VotingOption.create(evt.getVotingOptionA()),
                                 VotingOption.create(evt.getVotingOptionB()), evt.getCreatedBy())
                 )));
 
@@ -98,9 +103,10 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
 
                     Persist persistenceResult;
                     Logger.info("Got a registerVoteCommand with value {}", cmd.getVotingOption());
+                    Logger.info("Matching optionA: {} ", cmd.getVotingOption().equalsIgnoreCase(state().getVotingOptionA().getVotingName()));
                     if(cmd.getVotingOption().equalsIgnoreCase(state().getVotingOptionA().getVotingName()) ||
                             cmd.getVotingOption().equalsIgnoreCase(state().getVotingOptionB().getVotingName())){
-                        persistenceResult = ctx.thenPersist(new VoteRegisteredEvent(cmd.getVotingName(), System.currentTimeMillis()), evt ->
+                        persistenceResult = ctx.thenPersist(new VoteRegisteredEvent(cmd.getVotingOption(), System.currentTimeMillis()), evt ->
                                 ctx.reply(state()));
                     } else{
                         ctx.invalidCommand("The voteStream was tampered with! Value was: " + cmd);
@@ -130,15 +136,18 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
 
         behaviorBuilder.setEventHandler(VoteRegisteredEvent.class, evt -> {
                     Logger.info("Applying VoteRegisteredEvent with value {} and user {}", evt.getVoteName(), evt.getUserEpochId());
-                    Logger.info("State will be updated to: {}", state());
+                    Logger.info("State will be updated to: {}, {}, {} ", state(), state().getVotingOptionA(), state().getVotingOptionB());
                     VotingOption votingOptionA = state().getVotingOptionA();
                     VotingOption votingOptionB = state().getVotingOptionB();
                     if (evt.getVoteName().equalsIgnoreCase(state().getVotingOptionA().getVotingName())) {
                         votingOptionA.addVote();
-                    } else {
+                    } else if (evt.getVoteName().equalsIgnoreCase(state().getVotingOptionB().getVotingName())) {
                         votingOptionB.addVote();
+                    } else {
+                        throw new IllegalArgumentException(String.format("Illegal votingName %s ", evt.getVoteName()));
                     }
                     final VotingState newState = VotingState.createVotingState(state().getVotingName(),
+                            state().getVotingName(),
                             votingOptionA,
                             votingOptionB,
                             state().getCreatedBy());

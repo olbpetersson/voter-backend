@@ -33,7 +33,7 @@ public interface VotingService extends Service {
                 Service.namedCall("fail", this::fail),
                 Service.namedCall("read", this::readSide),
                 Service.pathCall("/read/:id", this::dynamicPath),
-                Service.pathCall("/read/:id", this::dynamicStream),
+                Service.pathCall("/stream/:id", this::dynamicStream),
                 Service.pathCall("/voting/:id", this::createVoting)
         ).withAutoAcl(true);
     }

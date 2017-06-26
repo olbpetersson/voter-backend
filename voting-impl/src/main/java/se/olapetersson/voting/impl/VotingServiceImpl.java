@@ -18,6 +18,7 @@ import com.lightbend.lagom.javadsl.pubsub.TopicId;
 import org.springframework.util.Assert;
 import play.Logger;
 import play.libs.Json;
+import scala.NotImplementedError;
 import se.olapetersson.voting.api.JSONMessage;
 import se.olapetersson.voting.api.TokenizerService;
 import se.olapetersson.voting.api.VotingService;
@@ -28,8 +29,9 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 
 public class VotingServiceImpl implements VotingService {
 
-    private final PersistentEntityRef ref;
-    private final PubSubRef pubSubRef;
+   /* private final PersistentEntityRef ref;
+    private final PubSubRef pubSubRef;*/
+    private final PubSubRegistry pubSubRegistry;
     private final CassandraSession cassandraSession;
     private Materializer materializer;
     private final PersistentEntityRegistry persistentEntityRegistry;
@@ -46,26 +48,38 @@ public class VotingServiceImpl implements VotingService {
 
         this.persistentEntityRegistry = persistentEntities;
         this.persistentEntityRegistry.register(VotingEntity.class);
+        this.pubSubRegistry = pubSubRegistry;
         readSide.register(VoteEventProcessor.class);
 
-        this.ref = persistentEntities.refFor(VotingEntity.class, "myId");
-        this.pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, "myId"));
+     //   this.ref = persistentEntities.refFor(VotingEntity.class, "myId");
+     //   this.pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, "myId"));
     }
 
     @Override
     public ServiceCall<Source<JSONMessage, ?>, Source<VotingState, NotUsed>> voteStream() {
         Logger.info("in the static stream ");
         return inputStream -> {
-            inputStream.runForeach(input ->  ref.ask(getCommand(input)), materializer);
-            NewVotingCommand d = new NewVotingCommand("a", "b", "c", "apa");
-            Logger.info("telling subscribers");
+            final String[] id = new String[1];
+            inputStream.runForeach(input ->  {
+                VoteCommand command = getCommand(input);
+                id[0] = command.getId();
+                Logger.info("setting command id to {}", command.getId());
+                PersistentEntityRef ref = persistentEntityRegistry.refFor(VotingEntity.class, command.getId());
+                ref.ask(command);
+            }, materializer);
+            //NewVotingCommand d = new NewVotingCommand("a", "b", "c", "apa");
+            PubSubRef pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, id[0]));
+            Logger.info("telling subscribers to id {}", id[0]);
             return completedFuture(pubSubRef.subscriber());
         };
     }
 
     @Override
     public ServiceCall<NotUsed, String> fail() {
-        return req -> ref.ask(new FailCommand()).thenApply(r -> "Crashed");
+        return req -> {
+            throw new RuntimeException();
+        };
+                /*ref.ask(new FailCommand()).thenApply(r -> "Crashed");*/
     }
 
     @Override
@@ -89,17 +103,24 @@ public class VotingServiceImpl implements VotingService {
     public ServiceCall<String, String> createVoting(String id) {
         return (String jwtToken) -> tokenizerService.validateToken().invoke(jwtToken).thenComposeAsync(userName -> {
                             PersistentEntityRef<VoteCommand> ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
-                            return ref.ask(new NewVotingCommand(id, "TODO", "TODO", jwtToken)).thenApply(resp -> "got a resp " + resp);
+                            return ref.ask(new NewVotingCommand(id, "TODO","TODO", "TODO", jwtToken)).thenApply(resp -> "got a resp " + resp);
                         }
                 );
     }
 
     @Override
     public ServiceCall<Source<JSONMessage, ?>, Source<VotingState, NotUsed>> dynamicStream(String id) {
+        Logger.info("in the static stream ");
         return inputStream -> {
-            Logger.info("in the dynamic stream");
-            PersistentEntityRef<VoteCommand> ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
-            inputStream.runForeach(input -> ref.ask(getCommand(input)), materializer);
+            inputStream.runForeach(input ->  {
+                VoteCommand command = getCommand(input);
+                Logger.info("setting command id to {}", id);
+                PersistentEntityRef ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
+                ref.ask(command);
+            }, materializer);
+            //NewVotingCommand d = new NewVotingCommand("a", "b", "c", "apa");
+            PubSubRef pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, id));
+            Logger.info("telling subscribers to id {}", id);
             return completedFuture(pubSubRef.subscriber());
         };
     }

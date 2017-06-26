@@ -5,13 +5,14 @@ package se.olapetersson.voting.impl.event;
  */
 public class NewVotingEvent implements VoteEvent{
     private final String votingName;
+    private final String description;
     private final String votingOptionA;
     private final String votingOptionB;
     private final String createdBy;
 
-    public NewVotingEvent(String votingName, String votingOptionA, String votingOptionB, String createdBy) {
-
+    public NewVotingEvent(String votingName, String description, String votingOptionA, String votingOptionB, String createdBy) {
         this.votingName = votingName;
+        this.description = description;
         this.votingOptionA = votingOptionA;
         this.votingOptionB = votingOptionB;
         this.createdBy = createdBy;
@@ -19,6 +20,10 @@ public class NewVotingEvent implements VoteEvent{
 
     public String getVotingName() {
         return votingName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getVotingOptionA() {

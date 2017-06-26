@@ -29,4 +29,9 @@ public class RegisterVoteCommand implements VoteCommand, CompressedJsonable{
     public String getVotingOption() {
         return votingOption;
     }
+
+    @Override
+    public String getId() {
+        return votingName;
+    }
 }

@@ -7,4 +7,5 @@ import se.olapetersson.voting.api.VotingState;
 import java.io.Serializable;
 
 public interface VoteCommand extends Jsonable, Serializable, PersistentEntity.ReplyType<VotingState> {
+    String getId();
 }

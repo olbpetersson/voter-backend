@@ -5,13 +5,15 @@ import java.util.UUID;
 public class VotingState  {
 
     private final String votingName;
+    private final String description;
     private VotingOption votingOptionA;
     private VotingOption votingOptionB;
     private String createdBy;
     private UUID uuid;
 
-    private VotingState(String votingName, VotingOption votingOptionA, VotingOption votingOptionB, String createdBy) {
+    private VotingState(String votingName, String description, VotingOption votingOptionA, VotingOption votingOptionB, String createdBy) {
         this.votingName = votingName;
+        this.description = description;
         this.votingOptionA = votingOptionA;
         this.votingOptionB = votingOptionB;
         this.createdBy = createdBy;
@@ -30,9 +32,9 @@ public class VotingState  {
         return votingOptionB;
     }
 
-    public static VotingState createVotingState(String votingName, VotingOption votingOptionA, VotingOption votingOptionB,
+    public static VotingState createVotingState(String votingName, String description, VotingOption votingOptionA, VotingOption votingOptionB,
                                                 String createdBy) {
-        return new VotingState(votingName, votingOptionA, votingOptionB, createdBy);
+        return new VotingState(votingName, description, votingOptionA, votingOptionB, createdBy);
     }
 
     public UUID getUuid() {
@@ -43,8 +45,11 @@ public class VotingState  {
     public String toString() {
         return "VotingState{" +
                 "votingName='" + votingName + '\'' +
+                ", description='" + description + '\'' +
                 ", votingOptionA=" + votingOptionA +
                 ", votingOptionB=" + votingOptionB +
+                ", createdBy='" + createdBy + '\'' +
+                ", uuid=" + uuid +
                 '}';
     }
 
