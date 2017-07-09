@@ -23,7 +23,7 @@ public interface VotingService extends Service {
     ServiceCall<NotUsed, String> fail();
     ServiceCall<NotUsed, String> readSide();
     ServiceCall<NotUsed, String> dynamicPath(String id);
-    ServiceCall<String, String> createVoting(String id);
+    ServiceCall<JSONMessage, VotingState> createVoting(String id);
     ServiceCall<Source<JSONMessage, ?>, Source<VotingState, NotUsed>> dynamicStream(String id);
 
     @Override

@@ -8,13 +8,15 @@ public class NewVotingEvent implements VoteEvent{
     private final String description;
     private final String votingOptionA;
     private final String votingOptionB;
+    private final int closeAfter;
     private final String createdBy;
 
-    public NewVotingEvent(String votingName, String description, String votingOptionA, String votingOptionB, String createdBy) {
+    public NewVotingEvent(String votingName, String description, String votingOptionA, String votingOptionB, int closeAfter, String createdBy) {
         this.votingName = votingName;
         this.description = description;
         this.votingOptionA = votingOptionA;
         this.votingOptionB = votingOptionB;
+        this.closeAfter = closeAfter;
         this.createdBy = createdBy;
     }
 
@@ -32,6 +34,10 @@ public class NewVotingEvent implements VoteEvent{
 
     public String getVotingOptionB() {
         return votingOptionB;
+    }
+
+    public int getCloseAfter() {
+        return closeAfter;
     }
 
     public String getCreatedBy() {

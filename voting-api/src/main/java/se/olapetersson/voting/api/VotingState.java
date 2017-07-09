@@ -6,17 +6,19 @@ public class VotingState  {
 
     private final String votingName;
     private final String description;
-    private VotingOption votingOptionA;
-    private VotingOption votingOptionB;
-    private String createdBy;
-    private UUID uuid;
+    private final VotingOption votingOptionA;
+    private final VotingOption votingOptionB;
+    private final String createdBy;
+    private final int closeAfter;
+    private final UUID uuid;
 
-    private VotingState(String votingName, String description, VotingOption votingOptionA, VotingOption votingOptionB, String createdBy) {
+    private VotingState(String votingName, String description, VotingOption votingOptionA, VotingOption votingOptionB, String createdBy, int closeAfter) {
         this.votingName = votingName;
         this.description = description;
         this.votingOptionA = votingOptionA;
         this.votingOptionB = votingOptionB;
         this.createdBy = createdBy;
+        this.closeAfter = closeAfter;
         this.uuid = UUID.randomUUID();
     }
 
@@ -33,12 +35,24 @@ public class VotingState  {
     }
 
     public static VotingState createVotingState(String votingName, String description, VotingOption votingOptionA, VotingOption votingOptionB,
-                                                String createdBy) {
-        return new VotingState(votingName, description, votingOptionA, votingOptionB, createdBy);
+                                                int closeAfter, String createdBy) {
+        return new VotingState(votingName, description, votingOptionA, votingOptionB, createdBy, closeAfter);
     }
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCloseAfter() {
+        return closeAfter;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 
     @Override
@@ -49,11 +63,8 @@ public class VotingState  {
                 ", votingOptionA=" + votingOptionA +
                 ", votingOptionB=" + votingOptionB +
                 ", createdBy='" + createdBy + '\'' +
+                ", closeAfter=" + closeAfter +
                 ", uuid=" + uuid +
                 '}';
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
     }
 }

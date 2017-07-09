@@ -36,7 +36,7 @@ public class VotingModule extends AbstractModule implements ServiceGuiceSupport 
 
     @Override
     protected void configure() {
-        bindServices(serviceBinding(VotingService.class, VotingServiceImpl.class));
+        bindService(VotingService.class, VotingServiceImpl.class);
         bindClient(TokenizerService.class);
     }
 }

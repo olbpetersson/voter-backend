@@ -9,6 +9,7 @@ public class NewVotingCommand implements VoteCommand {
     private final String description;
     private final String votingOptionA;
     private final String votingOptionB;
+    private final int closeAfter;
     private final String jwtToken;
 
     @JsonCreator
@@ -16,12 +17,14 @@ public class NewVotingCommand implements VoteCommand {
                             @JsonProperty("description") String description,
                             @JsonProperty("votingOptionA") String votingOptionA,
                             @JsonProperty("votingOptionB") String votingOptionB,
+                            @JsonProperty("closeAfter") int closeAfter,
                             @JsonProperty("token") String token) {
         this.votingName = votingName;
         this.description = description;
         this.votingOptionA = votingOptionA;
         this.votingOptionB = votingOptionB;
         this.jwtToken = token;
+        this.closeAfter = closeAfter;
     }
 
     public String getVotingName() {
@@ -38,6 +41,10 @@ public class NewVotingCommand implements VoteCommand {
 
     public String getVotingOptionB() {
         return votingOptionB;
+    }
+
+    public int getCloseAfter() {
+        return closeAfter;
     }
 
     public String getJwtToken() {

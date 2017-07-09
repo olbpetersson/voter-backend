@@ -31,4 +31,12 @@ public class VotingOption {
     public static VotingOption create(String votingName) {
         return new VotingOption(votingName);
     }
+
+    @Override
+    public String toString() {
+        return "VotingOption{" +
+                "nrOfVotes=" + nrOfVotes +
+                ", votingName='" + votingName + '\'' +
+                '}';
+    }
 }

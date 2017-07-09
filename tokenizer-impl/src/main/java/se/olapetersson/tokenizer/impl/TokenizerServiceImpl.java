@@ -37,7 +37,12 @@ public class TokenizerServiceImpl implements TokenizerService {
                     e.printStackTrace();
                     throw new IllegalStateException();
                 }
-            }).thenApply(tokeninfo -> jwtService.signPayload(tokeninfo.getEmail()));
+            }).thenApply(tokeninfo ->
+            {
+                String s = jwtService.signPayload(tokeninfo.getEmail());
+                Logger.info("returning token {}", s);
+                return s;
+            });
 
         };
     }

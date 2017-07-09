@@ -61,9 +61,10 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
                 return firstFuture.thenApply(userName -> {
                     Assert.hasText(userName, "Attempted to created a game with an invalid token");
                     return ctx.thenPersist(new NewVotingEvent(cmd.getVotingName(), cmd.getDescription(), cmd.getVotingOptionA(),
-                                    cmd.getVotingOptionB(), userName), evt -> {
+                                    cmd.getVotingOptionB(), cmd.getCloseAfter(), userName), evt -> {
                                 Logger.info("starting a voting... {} ", snapshotState.orElse(null));
                                 pubSubRef.publish(state());
+                                Logger.info("Returning state {}", state());
                                 ctx.reply(state());
                             }
                     );
@@ -74,15 +75,17 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
             }
         });
 
-        behaviorBuilder.setCommandHandler(NewVotingCommand.class, (cmd, ctx) -> {
-                throw new IllegalArgumentException("Game already created!");
-          }
-        );
+        behaviorBuilder.setCommandHandler(VoteStandingsCommand.class, (cmd, ctx) -> {
+            Logger.error("Does not exist");
+            throw new IllegalArgumentException("does not exist");
+        });
+
+
 
         behaviorBuilder.setEventHandlerChangingBehavior(NewVotingEvent.class, evt ->
                 openedBehavior(Optional.of(
                         VotingState.createVotingState(evt.getVotingName(), evt.getDescription(), VotingOption.create(evt.getVotingOptionA()),
-                                VotingOption.create(evt.getVotingOptionB()), evt.getCreatedBy())
+                                VotingOption.create(evt.getVotingOptionB()), evt.getCloseAfter(), evt.getCreatedBy())
                 )));
 
         return behaviorBuilder;
@@ -113,10 +116,22 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
 
                         persistenceResult = ctx.done();
                     }
+                    if (state().getVotingOptionA().getNrOfVotes() + state().getVotingOptionB().getNrOfVotes() >= state().getCloseAfter()) {
+                        Logger.info("Closing the game {}", state());
+                        persistenceResult = ctx.thenPersist(new CloseEvent());
+                    }
+
+
                     pubSubRef.publish(state());
                     return persistenceResult;
                 }
         );
+
+        behaviorBuilder.setCommandHandler(NewVotingCommand.class, (cmd, ctx) -> {
+                    throw new IllegalArgumentException("Game already created!");
+                }
+        );
+
 
         behaviorBuilder.setCommandHandler(FailCommand.class, (cmd, ctx) ->
                 {
@@ -140,8 +155,11 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
                     VotingOption votingOptionA = state().getVotingOptionA();
                     VotingOption votingOptionB = state().getVotingOptionB();
                     if (evt.getVoteName().equalsIgnoreCase(state().getVotingOptionA().getVotingName())) {
+                        Logger.info("Adding vote to optionA {}", votingOptionA);
                         votingOptionA.addVote();
+                        Logger.info("Added vote to optionA {} ", votingOptionA);
                     } else if (evt.getVoteName().equalsIgnoreCase(state().getVotingOptionB().getVotingName())) {
+                        Logger.info("Adding vote to optionB");
                         votingOptionB.addVote();
                     } else {
                         throw new IllegalArgumentException(String.format("Illegal votingName %s ", evt.getVoteName()));
@@ -150,8 +168,11 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
                             state().getVotingName(),
                             votingOptionA,
                             votingOptionB,
+                            state().getCloseAfter(),
                             state().getCreatedBy());
+                    Logger.info("Publishing updated state {}", newState);
                     pubSubRef.publish(newState);
+
                     return newState;
                 }
         );

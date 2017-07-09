@@ -18,7 +18,6 @@ import com.lightbend.lagom.javadsl.pubsub.TopicId;
 import org.springframework.util.Assert;
 import play.Logger;
 import play.libs.Json;
-import scala.NotImplementedError;
 import se.olapetersson.voting.api.JSONMessage;
 import se.olapetersson.voting.api.TokenizerService;
 import se.olapetersson.voting.api.VotingService;
@@ -49,7 +48,7 @@ public class VotingServiceImpl implements VotingService {
         this.persistentEntityRegistry = persistentEntities;
         this.persistentEntityRegistry.register(VotingEntity.class);
         this.pubSubRegistry = pubSubRegistry;
-        readSide.register(VoteEventProcessor.class);
+    //    readSide.register(VoteEventProcessor.class);
 
      //   this.ref = persistentEntities.refFor(VotingEntity.class, "myId");
      //   this.pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, "myId"));
@@ -95,22 +94,27 @@ public class VotingServiceImpl implements VotingService {
         return req -> {
             Logger.info("this is dynamicPath: {}", id);
             PersistentEntityRef<VoteCommand> ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
-            return ref.ask(new VoteStandingsCommand()).thenApply(resp -> resp + " was retorno");
+            return ref.ask(VoteStandingsCommand.create(id)).thenApply(resp -> resp + " was retorno");
         };
     }
 
     @Override
-    public ServiceCall<String, String> createVoting(String id) {
-        return (String jwtToken) -> tokenizerService.validateToken().invoke(jwtToken).thenComposeAsync(userName -> {
-                            PersistentEntityRef<VoteCommand> ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
-                            return ref.ask(new NewVotingCommand(id, "TODO","TODO", "TODO", jwtToken)).thenApply(resp -> "got a resp " + resp);
-                        }
-                );
+    public ServiceCall<JSONMessage, VotingState> createVoting(String id) {
+        return jsonMessage ->
+        {
+            NewVotingCommand newVotingCommand = Json.fromJson(jsonMessage.getPayload(), NewVotingCommand.class);
+            String jwtToken = newVotingCommand.getJwtToken();
+            return tokenizerService.validateToken().invoke(jwtToken).thenComposeAsync(userName -> {
+                        PersistentEntityRef<VoteCommand> ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
+                        return ref.ask(newVotingCommand).thenApply(resp -> resp);
+                    }
+            );
+        };
     }
 
     @Override
     public ServiceCall<Source<JSONMessage, ?>, Source<VotingState, NotUsed>> dynamicStream(String id) {
-        Logger.info("in the static stream ");
+        Logger.info("in the dynamic stream ");
         return inputStream -> {
             inputStream.runForeach(input ->  {
                 VoteCommand command = getCommand(input);

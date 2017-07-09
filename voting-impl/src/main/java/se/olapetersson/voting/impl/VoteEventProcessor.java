@@ -1,3 +1,4 @@
+/*
 package se.olapetersson.voting.impl;
 
 import akka.Done;
@@ -76,3 +77,4 @@ public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
         this.writeEvent = writeEvent;
     }
 }
+*/
