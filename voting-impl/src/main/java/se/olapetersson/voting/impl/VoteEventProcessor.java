@@ -1,4 +1,3 @@
-/*
 package se.olapetersson.voting.impl;
 
 import akka.Done;
@@ -12,14 +11,14 @@ import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import org.pcollections.PSequence;
 import play.Logger;
-import se.olapetersson.voting.impl.event.VoteRegisteredEvent;
+import se.olapetersson.voting.impl.event.NewVotingEvent;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import static com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide.completedStatement;
 
-public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
+public class VoteEventProcessor extends ReadSideProcessor<NewVotingEvent>{
 
     private final CassandraSession session;
     private final CassandraReadSide readSide;
@@ -32,26 +31,26 @@ public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
     }
 
     @Override
-    public ReadSideHandler<VoteRegisteredEvent> buildHandler() {
-        return readSide.<VoteRegisteredEvent>builder("vote_offset")
+    public ReadSideHandler<NewVotingEvent> buildHandler() {
+        return readSide.<NewVotingEvent>builder("vote_offset")
                 .setGlobalPrepare(this::prepareCreateTable)
                 .setPrepare((ignored) -> prepareWriteVote())
-                .setEventHandler(VoteRegisteredEvent.class, this::processVoteRegistered)
+                .setEventHandler(NewVotingEvent.class, this::processVoteRegistered)
                 .build();
     }
 
-    private CompletionStage<List<BoundStatement>> processVoteRegistered(VoteRegisteredEvent voteRegisteredEvent){
+    private CompletionStage<List<BoundStatement>> processVoteRegistered(NewVotingEvent newVotingEvent){
         Logger.info("Processing an event for readside");
         BatchStatement batchStatement = new BatchStatement();
         BoundStatement bindWriteEvent = writeEvent.bind();
-        bindWriteEvent.setLong("user", voteRegisteredEvent.getUserEpochId());
+        bindWriteEvent.setString("name", newVotingEvent.getVotingName());
         batchStatement.add(bindWriteEvent);
         return completedStatement(bindWriteEvent);
     }
 
     private CompletionStage<Done> prepareWriteVote() {
        return session.prepare(
-                  "INSERT INTO participants (user) " +
+                  "INSERT INTO votings (name) " +
                        "VALUES (?)"
                 )
                .thenApply(ps -> {
@@ -63,18 +62,17 @@ public class VoteEventProcessor extends ReadSideProcessor<VoteRegisteredEvent>{
     private CompletionStage<Done> prepareCreateTable() {
         Logger.info("Creating voteStream table");
         return session.executeCreateTable(
-                "CREATE TABLE IF NOT EXISTS participants("
-                + "user bigint,"
-                + "PRIMARY KEY (user) )");
+                "CREATE TABLE IF NOT EXISTS votings("
+                + "name text,"
+                + "PRIMARY KEY (name) )");
     }
 
     @Override
-    public PSequence<AggregateEventTag<VoteRegisteredEvent>> aggregateTags() {
-        return VoteRegisteredEvent.TAG_INSTANCE.allTags();
+    public PSequence<AggregateEventTag<NewVotingEvent>> aggregateTags() {
+        return NewVotingEvent.TAG_INSTANCE.allTags();
     }
 
     public void setWriteEvent(PreparedStatement writeEvent) {
         this.writeEvent = writeEvent;
     }
 }
-*/

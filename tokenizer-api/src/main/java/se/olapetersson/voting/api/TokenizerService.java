@@ -20,6 +20,6 @@ public interface TokenizerService extends Service {
                 Service.namedCall("token", this::createToken),
                 Service.namedCall("validate", this::validateToken)
         ).withAutoAcl(true)
-                .withServiceAcls(ServiceAcl.methodAndPath(Method.OPTIONS,"/token"));
+                .withServiceAcls(ServiceAcl.methodAndPath(Method.OPTIONS,"token"));
     }
 }

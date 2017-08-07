@@ -7,7 +7,9 @@ import akka.NotUsed;
 import akka.stream.javadsl.Source;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
+import com.lightbend.lagom.javadsl.api.ServiceAcl;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.transport.Method;
 
 import static com.lightbend.lagom.javadsl.api.Service.named;
 
@@ -35,6 +37,6 @@ public interface VotingService extends Service {
                 Service.pathCall("/read/:id", this::dynamicPath),
                 Service.pathCall("/stream/:id", this::dynamicStream),
                 Service.pathCall("/voting/:id", this::createVoting)
-        ).withAutoAcl(true);
+        ).withAutoAcl(true).withServiceAcls(ServiceAcl.methodAndPath(Method.OPTIONS, "read"));
     }
 }

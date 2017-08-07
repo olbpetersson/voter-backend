@@ -11,11 +11,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!--<dependency>
+        <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>filters-helpers_2.11</artifactId>
-            <version>2.5.13</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

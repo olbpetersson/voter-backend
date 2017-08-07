@@ -71,6 +71,11 @@
                 <artifactId>${conductr.lib.name}</artifactId>
                 <version>1.4.7</version>
             </dependency>
+            <dependency>
+                <groupId>com.typesafe.play</groupId>
+                <artifactId>filters-helpers_2.11</artifactId>
+                <version>2.5.13</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

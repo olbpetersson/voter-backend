@@ -1,4 +1,4 @@
-package se.olapetersson.tokenizer.impl;
+package se.olapetersson.voting.impl;
 
 import play.filters.cors.CORSFilter;
 import play.http.DefaultHttpFilters;

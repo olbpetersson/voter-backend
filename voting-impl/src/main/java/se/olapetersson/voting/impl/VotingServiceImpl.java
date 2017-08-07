@@ -21,8 +21,10 @@ import play.libs.Json;
 import se.olapetersson.voting.api.JSONMessage;
 import se.olapetersson.voting.api.TokenizerService;
 import se.olapetersson.voting.api.VotingService;
-import se.olapetersson.voting.impl.command.*;
 import se.olapetersson.voting.api.VotingState;
+import se.olapetersson.voting.impl.command.*;
+
+import java.util.stream.Collectors;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -48,7 +50,7 @@ public class VotingServiceImpl implements VotingService {
         this.persistentEntityRegistry = persistentEntities;
         this.persistentEntityRegistry.register(VotingEntity.class);
         this.pubSubRegistry = pubSubRegistry;
-    //    readSide.register(VoteEventProcessor.class);
+        readSide.register(VoteEventProcessor.class);
 
      //   this.ref = persistentEntities.refFor(VotingEntity.class, "myId");
      //   this.pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, "myId"));
@@ -68,7 +70,7 @@ public class VotingServiceImpl implements VotingService {
             }, materializer);
             //NewVotingCommand d = new NewVotingCommand("a", "b", "c", "apa");
             PubSubRef pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, id[0]));
-            Logger.info("telling subscribers to id {}", id[0]);
+            Logger.info("Informing subscribers to id {} from voteStream", id[0]);
             return completedFuture(pubSubRef.subscriber());
         };
     }
@@ -83,9 +85,8 @@ public class VotingServiceImpl implements VotingService {
 
     @Override
     public ServiceCall<NotUsed, String> readSide() {
-        return req -> cassandraSession.selectOne("SELECT Count(*) FROM participants")
-                      .thenApply(row ->
-                        row.isPresent() ? "" + row.get().getLong("count") : "No participants");
+        return req -> cassandraSession.selectAll("SELECT * FROM votings")
+                .thenApply(rows -> rows.stream().map(row -> row.getString("name")).collect(Collectors.toList()).toString());
     }
 
 
@@ -100,6 +101,7 @@ public class VotingServiceImpl implements VotingService {
 
     @Override
     public ServiceCall<JSONMessage, VotingState> createVoting(String id) {
+        Logger.info("Trying to create a game");
         return jsonMessage ->
         {
             NewVotingCommand newVotingCommand = Json.fromJson(jsonMessage.getPayload(), NewVotingCommand.class);
@@ -116,15 +118,18 @@ public class VotingServiceImpl implements VotingService {
     public ServiceCall<Source<JSONMessage, ?>, Source<VotingState, NotUsed>> dynamicStream(String id) {
         Logger.info("in the dynamic stream ");
         return inputStream -> {
+            Logger.info("this was the inputstream {}", inputStream);
+
             inputStream.runForeach(input ->  {
+                Logger.info("Trying to retrieve the command for an input");
                 VoteCommand command = getCommand(input);
-                Logger.info("setting command id to {}", id);
+                Logger.info("Setting command id to {}", id);
                 PersistentEntityRef ref = persistentEntityRegistry.refFor(VotingEntity.class, id);
                 ref.ask(command);
             }, materializer);
             //NewVotingCommand d = new NewVotingCommand("a", "b", "c", "apa");
             PubSubRef pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, id));
-            Logger.info("telling subscribers to id {}", id);
+            Logger.info("Dynamic stream: Informing subscribers to id {}", id);
             return completedFuture(pubSubRef.subscriber());
         };
     }
@@ -135,11 +140,12 @@ public class VotingServiceImpl implements VotingService {
         Logger.info("in {} {}", input.getPayload().getClass(), input.getPayload());
         switch (input.getType()) {
             case "NewVotingCommand":
+                Logger.info("received a new logger command!");
                 NewVotingCommand newVotingCommand = null;
                 try {
                     newVotingCommand = Json.fromJson(input.getPayload(), NewVotingCommand.class);
                 } catch (Exception e) {
-                    Logger.info("apa {} ", e);
+                    Logger.info("Unable to serialize newVotingCommand {} ", e);
                 }
                 Logger.info("returning {}", newVotingCommand);
                 return newVotingCommand;

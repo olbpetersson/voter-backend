@@ -45,17 +45,17 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
     @SuppressWarnings("unchecked")
     @Override
     public Behavior initialBehavior(Optional<VotingState> snapshotState) {
-        Logger.info("setting the initial behavior wohoo, entityId {}", entityId());
+        Logger.info("Setting the initial behavior, entityId {}", entityId());
         pubSubRef = pubSubRegistry.refFor(TopicId.of(VotingState.class, entityId()));
 
         return initBehavior(snapshotState).build();
     }
 
     private BehaviorBuilder initBehavior(Optional<VotingState> snapshotState) {
-        Logger.info("Creating a voting..., entityId {}", entityId());
+        Logger.info("In the initial behavior of entityId {}", entityId());
         BehaviorBuilder behaviorBuilder = newBehaviorBuilder(snapshotState.orElse(null));
         behaviorBuilder.setCommandHandler(NewVotingCommand.class, (cmd, ctx) -> {
-            Logger.info("monkey");
+            Logger.info("Received a new voting command");
             CompletionStage<String> firstFuture = tokenService.validateToken().invoke(cmd.getJwtToken());
             try {
                 return firstFuture.thenApply(userName -> {
@@ -76,8 +76,8 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
         });
 
         behaviorBuilder.setCommandHandler(VoteStandingsCommand.class, (cmd, ctx) -> {
-            Logger.error("Does not exist");
-            throw new IllegalArgumentException("does not exist");
+            Logger.error("Can not send a VoteStandingsCommand for a game that hasn't started");
+            throw new IllegalArgumentException("Can not send a VoteStandingsCommand for a game that hasn't started");
         });
 
 
@@ -180,7 +180,8 @@ public class VotingEntity extends PersistentEntity<VoteCommand, VoteEvent, Votin
         behaviorBuilder.setEventHandlerChangingBehavior(CloseEvent.class, evt -> {
                     BehaviorBuilder closedBehavior = newBehaviorBuilder(null);
                     behaviorBuilder.setEventHandler(VoteRegisteredEvent.class, disregard -> {
-                        throw new RuntimeException();
+                        pubSubRef.publish(state());
+                        throw new RuntimeException("The game has been closed!");
                     });
                     return closedBehavior.build();
                 }
